@@ -1,21 +1,37 @@
+<!-- queue.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Queue</title>
 </head>
 <body>
-<p>sei in coda per giocare</p>
-
-<ul>
-    {{range .}}
-    <li>{{.Username}}</li>
+<h1>Queue List</h1>
+<ul id="queue-list">
+    {{range .QueueList}}
+    <li>{{.}}</li>
     {{end}}
 </ul>
 
+<script>
+    const socket = new WebSocket("ws://" + window.location.host + "/wsGameQueue");
 
-
-
-
+    socket.onmessage = function(event) {
+        const data = event.data;
+        if (data === '/quiz') {
+            // Redirect to the specified URL
+            window.location.href = data;
+        } else {
+            // Update queue list
+            const queueList = document.getElementById("queue-list");
+            const listItem = document.createElement("li");
+            listItem.textContent = data;
+            queueList.appendChild(listItem);
+        }
+    };
+</script>
 </body>
+
 </html>

@@ -55,18 +55,44 @@
     </style>
 </head>
 <body>
-<p>Congratulations!</p>
-<ul>
-    {{range .}}
-    <li>{{.Username}} {{.Points}}</li>
-    {{end}}
-</ul>
+<h1>Leaderboard</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Username</th>
+        <th>Points</th>
+    </tr>
+    </thead>
+    <tbody id="leaderboard-body">
+    <!-- Leaderboard rows will be dynamically added here -->
+    </tbody>
+</table>
 
-<form action="/finalLeaderboard">
-    <button type="submit">Reload Page</button>
-</form>
 <form action="/logout">
     <button type="submit">Logout</button>
 </form>
+
+<script>
+    // Verify WebSocket Connection
+    const socket = new WebSocket("ws://" + window.location.host + "/wsLeaderboard");
+
+    socket.onopen = function(event) {
+        console.log("WebSocket connection established.");
+    };
+
+    socket.onerror = function(error) {
+        console.error("WebSocket error:", error);
+    };
+
+    // Verify WebSocket Message Handling
+    socket.onmessage = function(event) {
+        console.log("Message received from server:", event.data);
+        const message = JSON.parse(event.data);
+        console.log("Parsed message:", message);
+        // Update leaderboard based on the received message
+        const leaderboardRow = `<tr><td>${message.username}</td><td>${message.gamePoints}</td></tr>`;
+        document.getElementById("leaderboard-body").innerHTML += leaderboardRow;
+    };
+</script>
 </body>
 </html>

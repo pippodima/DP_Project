@@ -6,6 +6,7 @@ import (
 )
 
 var activeUsers []User
+var queue []string
 
 type User struct {
 	Username        string
@@ -16,7 +17,7 @@ type User struct {
 	Conn            *websocket.Conn
 }
 
-func newUser(username string) {
+func newActiveUser(username string) {
 	var totPoints int
 	var gamesPlayed int
 	err = db.QueryRow("select totalPoints from users where username = ?", username).Scan(&totPoints)
@@ -37,4 +38,31 @@ func newUser(username string) {
 		CurrentQuestion: 0,
 		Conn:            nil,
 	})
+}
+
+func removeActiveUser(username string) {
+	for i, user := range activeUsers {
+		if user.Username == username {
+			activeUsers = append(activeUsers[:i], activeUsers[i+1:]...)
+			return
+		}
+	}
+}
+
+func getUserFromUsername(username string) *User {
+	for i, user := range activeUsers {
+		if user.Username == username {
+			return &activeUsers[i]
+		}
+	}
+	return nil
+}
+
+func getCurrentQuestion(username string) int {
+	for i, user := range activeUsers {
+		if user.Username == username {
+			return activeUsers[i].CurrentQuestion
+		}
+	}
+	return -1
 }

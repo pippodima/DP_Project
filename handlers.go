@@ -3,9 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/sessions"
+	"github.com/gorilla/websocket"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
+	"log"
 	"net/http"
+	"strings"
+	"time"
 )
 
 func welcomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -52,12 +56,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		session.Save(r, w)
 
-		newUser(username)
+		newActiveUser(username)
 
 		http.Redirect(w, r, "/profileDashboard", http.StatusSeeOther)
 	}
 
-	t, err := template.ParseFiles("templates/login.html")
+	t, err := template.ParseFiles("Templates/login.html")
 	if err != nil {
 		fmt.Println("error parsing login.html: ", err)
 		http.Error(w, "error parsing login page", http.StatusInternalServerError)
@@ -108,7 +112,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFiles("templates/register.html")
+	t, err := template.ParseFiles("Templates/register.html")
 	if err != nil {
 		fmt.Println("error parsing register.html: ", err)
 		http.Error(w, "error parsing register page", http.StatusInternalServerError)
@@ -121,4 +125,142 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error executing register page", http.StatusInternalServerError)
 		return
 	}
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "playerData")
+
+	username, _ := session.Values["username"].(string)
+
+	_, err = db.Exec("update users set totalPoints = ? where username = ?", getUserFromUsername(username).TotalPoints, username)
+	if err != nil {
+		fmt.Println("error in updating the total points: ", err)
+	}
+
+	_, err = db.Exec("update users set gamesPlayed = ? where username = ?", getUserFromUsername(username).GamesPlayed, username)
+	if err != nil {
+		fmt.Println("error in updating the total games played: ", err)
+	}
+
+	removeActiveUser(username)
+
+	session.Values = make(map[interface{}]interface{})
+	session.Options.MaxAge = -1
+	session.Save(r, w)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func profileDashboardHandler(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "playerData")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	t, err := template.ParseFiles("Templates/playerDashboard.html")
+	if err != nil {
+		fmt.Println("error parsing playerDashboard.html: ", err)
+		http.Error(w, "error parsing playerDashboard page", http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, getUserFromUsername(session.Values["username"].(string)))
+	if err != nil {
+		fmt.Println("error executing playerDashboard.html: ", err)
+		http.Error(w, "error executing playerDashboard page", http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func addGameQueueHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "playerData")
+	username := session.Values["username"].(string)
+	session.Values["inGame"] = true
+	session.Save(r, w)
+	queue = append(queue, username)
+
+	for _, user := range activeUsers {
+		if user.Conn != nil {
+			err := user.Conn.WriteMessage(websocket.TextMessage, []byte(username))
+			if err != nil {
+				log.Println("Error writing to WebSocket:", err)
+			}
+		}
+	}
+
+	http.Redirect(w, r, "/gameQueue", http.StatusSeeOther)
+
+}
+
+func gameQueueHandler(w http.ResponseWriter, r *http.Request) {
+
+	t, err := template.ParseFiles("templates/queue.html")
+	if err != nil {
+		fmt.Println("error parsing queue.html: ", err)
+		http.Error(w, "error parsing queue page", http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, map[string]interface{}{
+		"QueueList": queue,
+	})
+	if err != nil {
+		fmt.Println("error executing queue.html: ", err)
+		http.Error(w, "error executing queue page", http.StatusInternalServerError)
+		return
+	}
+}
+
+func quizHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "playerData")
+	username := session.Values["username"].(string)
+
+	if getCurrentQuestion(username) == -1 {
+		http.Error(w, "Error getting the current question", http.StatusInternalServerError)
+	}
+
+	if getCurrentQuestion(username) >= QuestionPerRound {
+		http.Redirect(w, r, "/addLeaderboard", http.StatusSeeOther)
+		return
+	}
+
+	currenTime := time.Now()
+	session.Values["timeStart"] = int(currenTime.Unix())
+	session.Save(r, w)
+
+	question := Question{}
+	var options string
+	db.QueryRow("select text, options, correct_idx from questions where id = ?", randomIntSlice[getCurrentQuestion(username)]).Scan(&question.Text, &options, &question.CorrectIdx)
+	question.Options = strings.Split(options, ",")
+	getUserFromUsername(username).CurrentQuestion++
+
+	t, err := template.ParseFiles("Templates/quiz.html")
+	if err != nil {
+		fmt.Println("error parsing quiz.html: ", err)
+		http.Error(w, "error parsing quiz page", http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, question)
+	if err != nil {
+		fmt.Println("error executing quiz.html: ", err)
+		http.Error(w, "error executing quiz page", http.StatusInternalServerError)
+		return
+	}
+}
+
+func submitAnswerHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		if r.FormValue("selectedOption") == r.FormValue("correctIndex") {
+			session, _ := store.Get(r, "playerData")
+			username := session.Values["username"].(string)
+			addCorrectPoint(username)
+			addTimePoint(username, session.Values["timeStart"].(int))
+		}
+		http.Redirect(w, r, "/quiz", http.StatusSeeOther)
+	}
+}
+
+func addLeaderboardQueue(w http.ResponseWriter, r *http.Request) {
+
 }

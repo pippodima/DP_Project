@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard</title>
     <style>
@@ -16,17 +17,30 @@
             flex-direction: column;
         }
 
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            text-align: center;
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin-bottom: 20px;
+            background-color: #dddddd;
+            border-bottom: 2px solid #333333;
+            border-left: 2px solid #333333;
+            border-top: 2px solid #333333;
+            border-right: 2px solid #333333;
         }
 
-        li {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 10px;
+        th, td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
         }
 
         form {
@@ -51,19 +65,29 @@
     </style>
 </head>
 <body>
-<ul>
-    {{range .}}
-    <li>{{.Username}}</li>
-    {{end}}
-</ul>
+<table>
+    <thead>
+    <tr>
+        <th>Username</th>
+        <th>Total Points</th>
+        <th>Games Played</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>{{.Username}}</td>
+        <td>{{.TotalPoints}}</td>
+        <td>{{.GamesPlayed}}</td>
+    </tr>
+    <!-- You can add more rows for additional users here -->
+    </tbody>
+</table>
 
 <form action="/logout">
     <button type="submit">Logout</button>
 </form>
-<form action="/addQueue">
+<form action="/addGameQueue">
     <button type="submit">Play</button>
 </form>
-
-
 </body>
 </html>
