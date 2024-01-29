@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/websocket"
+	"sort"
 )
 
 var activeUsers []User
-var queue []string
+var gameQueue []string
+var leaderboardQueue []string
 
 type User struct {
 	Username        string
@@ -65,4 +67,31 @@ func getCurrentQuestion(username string) int {
 		}
 	}
 	return -1
+}
+
+func getUserListFromUsernames(usernames []string) []User {
+	var users []User
+	for _, username := range usernames {
+		for _, user := range activeUsers {
+			if user.Username == username {
+				var tempUser = User{
+					Username:        user.Username,
+					GamePoints:      user.GamePoints,
+					TotalPoints:     user.TotalPoints,
+					GamesPlayed:     user.GamesPlayed,
+					CurrentQuestion: user.CurrentQuestion,
+					Conn:            user.Conn,
+				}
+				users = append(users, tempUser)
+			}
+		}
+	}
+	return users
+}
+
+func sortUsers(users []User) []User {
+	sort.Slice(users, func(i, j int) bool {
+		return users[i].GamePoints > users[j].GamePoints
+	})
+	return users
 }

@@ -31,6 +31,10 @@ func main() {
 	http.HandleFunc("/wsGameQueue", authenticationMiddleware(wsGameQueueHandler))
 	http.HandleFunc("/quiz", authenticationMiddleware(quizHandler))
 	http.HandleFunc("/submitAnswer", authenticationMiddleware(submitAnswerHandler))
+	http.HandleFunc("/addLeaderboardQueue", authenticationMiddleware(addLeaderboardQueue))
+	http.HandleFunc("/leaderboardQueue", authenticationMiddleware(leaderboardQueueHandler))
+	http.HandleFunc("/wsLeaderboardQueue", authenticationMiddleware(wsLeaderboardQueueHandler))
+	http.HandleFunc("/leaderboard", authenticationMiddleware(leaderboardHandler))
 
 	fmt.Println("server starting at :8080")
 	err := http.ListenAndServe(":8080", nil)

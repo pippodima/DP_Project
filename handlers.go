@@ -129,19 +129,9 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "playerData")
-
 	username, _ := session.Values["username"].(string)
 
-	_, err = db.Exec("update users set totalPoints = ? where username = ?", getUserFromUsername(username).TotalPoints, username)
-	if err != nil {
-		fmt.Println("error in updating the total points: ", err)
-	}
-
-	_, err = db.Exec("update users set gamesPlayed = ? where username = ?", getUserFromUsername(username).GamesPlayed, username)
-	if err != nil {
-		fmt.Println("error in updating the total games played: ", err)
-	}
-
+	save(username)
 	removeActiveUser(username)
 
 	session.Values = make(map[interface{}]interface{})
@@ -177,7 +167,7 @@ func addGameQueueHandler(w http.ResponseWriter, r *http.Request) {
 	username := session.Values["username"].(string)
 	session.Values["inGame"] = true
 	session.Save(r, w)
-	queue = append(queue, username)
+	gameQueue = append(gameQueue, username)
 
 	for _, user := range activeUsers {
 		if user.Conn != nil {
@@ -202,7 +192,7 @@ func gameQueueHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = t.Execute(w, map[string]interface{}{
-		"QueueList": queue,
+		"QueueList": gameQueue,
 	})
 	if err != nil {
 		fmt.Println("error executing queue.html: ", err)
@@ -220,7 +210,7 @@ func quizHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if getCurrentQuestion(username) >= QuestionPerRound {
-		http.Redirect(w, r, "/addLeaderboard", http.StatusSeeOther)
+		http.Redirect(w, r, "/addLeaderboardQueue", http.StatusSeeOther)
 		return
 	}
 
@@ -262,5 +252,59 @@ func submitAnswerHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func addLeaderboardQueue(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "playerData")
+	username := session.Values["username"].(string)
+	leaderboardQueue = append(leaderboardQueue, username)
+
+	for _, user := range activeUsers {
+		if user.Conn != nil {
+			err := user.Conn.WriteMessage(websocket.TextMessage, []byte(username))
+			if err != nil {
+				log.Println("Error writing to WebSocket:", err)
+			}
+		}
+	}
+
+	http.Redirect(w, r, "/leaderboardQueue", http.StatusSeeOther)
+}
+
+func leaderboardQueueHandler(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("templates/leaderboardQueue.html")
+	if err != nil {
+		fmt.Println("error parsing leaderboardQueue.html: ", err)
+		http.Error(w, "error parsing leaderboardQueue page", http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, map[string]interface{}{
+		"QueueList": leaderboardQueue,
+	})
+	if err != nil {
+		fmt.Println("error executing leaderboardQueue.html: ", err)
+		http.Error(w, "error executing leaderboardQueue page", http.StatusInternalServerError)
+		return
+	}
+}
+
+func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
+
+	t, err := template.ParseFiles("templates/leaderboard.html")
+	if err != nil {
+		fmt.Println("error parsing leaderboard.html: ", err)
+		http.Error(w, "error parsing leaderboard page", http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, sortUsers(getUserListFromUsernames(leaderboardQueue)))
+	if err != nil {
+		fmt.Println("error executing leaderboard.html: ", err)
+		http.Error(w, "error executing leaderboard page", http.StatusInternalServerError)
+		return
+	}
+
+	session, _ := store.Get(r, "playerData")
+	save(session.Values["username"].(string))
+
+	//	TODO: resetQueues and better savePoints
 
 }

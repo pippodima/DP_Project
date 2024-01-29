@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -50,4 +51,24 @@ func addTimePoint(username string, timeStart int) {
 			return
 		}
 	}
+}
+
+func save(username string) {
+
+	_, err = db.Exec("update users set totalPoints = totalPoints + ? where username = ?", getUserFromUsername(username).GamePoints, username)
+	if err != nil {
+		fmt.Println("error in updating the total points: ", err)
+	}
+
+	_, err = db.Exec("update users set gamesPlayed = ? where username = ?", getUserFromUsername(username).GamesPlayed, username)
+	if err != nil {
+		fmt.Println("error in updating the total games played: ", err)
+	}
+
+	getUserFromUsername(username).GamePoints = 0
+
+}
+
+func resetQueues() {
+
 }
