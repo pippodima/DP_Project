@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congratulations!</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        p {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        form {
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+<p>Congratulations!</p>
+<ul>
+    {{range .}}
+    <li>{{.Username}} {{.Points}}</li>
+    {{end}}
+</ul>
+
+<form action="/finalLeaderboard">
+    <button type="submit">Reload Page</button>
+</form>
+<form action="/logout">
+    <button type="submit">Logout</button>
+</form>
+</body>
+</html>

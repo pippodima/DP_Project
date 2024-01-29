@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+<form method="post" action="/submitAnswer">
+    <input type="hidden" name="correctIndex" value="{{.CorrectIdx}}">
+    <p>{{.Text}}</p>
+    <ul>
+        {{range $index, $option := .Options}}
+        <li>
+            <button type="submit" name="selectedOption" value="{{$index}}">Select</button>
+            {{.}}
+        </li>
+        {{end}}
+    </ul>
+</form>
+</body>
+</html>
