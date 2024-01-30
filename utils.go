@@ -55,6 +55,8 @@ func addTimePoint(username string, timeStart int) {
 
 func save(username string) {
 
+	getUserFromUsername(username).GamesPlayed++
+
 	_, err = db.Exec("update users set totalPoints = totalPoints + ? where username = ?", getUserFromUsername(username).GamePoints, username)
 	if err != nil {
 		fmt.Println("error in updating the total points: ", err)
@@ -66,9 +68,15 @@ func save(username string) {
 	}
 
 	getUserFromUsername(username).GamePoints = 0
+	getUserFromUsername(username).CurrentQuestion = 0
 
 }
 
-func resetQueues() {
-
+func remove(list []string, username string) []string {
+	for i, v := range list {
+		if v == username {
+			return append(list[:i], list[i+1:]...)
+		}
+	}
+	return list
 }

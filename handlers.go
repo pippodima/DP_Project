@@ -131,7 +131,6 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "playerData")
 	username, _ := session.Values["username"].(string)
 
-	save(username)
 	removeActiveUser(username)
 
 	session.Values = make(map[interface{}]interface{})
@@ -254,13 +253,15 @@ func submitAnswerHandler(w http.ResponseWriter, r *http.Request) {
 func addLeaderboardQueue(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "playerData")
 	username := session.Values["username"].(string)
-	leaderboardQueue = append(leaderboardQueue, username)
+	leaderboardQueue = remove(leaderboardQueue, username)
 
 	for _, user := range activeUsers {
 		if user.Conn != nil {
-			err := user.Conn.WriteMessage(websocket.TextMessage, []byte(username))
-			if err != nil {
-				log.Println("Error writing to WebSocket:", err)
+			for _, name := range leaderboardQueue {
+				err := user.Conn.WriteMessage(websocket.TextMessage, []byte(name))
+				if err != nil {
+					log.Println("Error writing to WebSocket:", err)
+				}
 			}
 		}
 	}
@@ -295,16 +296,31 @@ func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = t.Execute(w, sortUsers(getUserListFromUsernames(leaderboardQueue)))
+	err = t.Execute(w, sortUsers(getUserListFromUsernames(leaderboard)))
 	if err != nil {
 		fmt.Println("error executing leaderboard.html: ", err)
 		http.Error(w, "error executing leaderboard page", http.StatusInternalServerError)
 		return
 	}
 
-	session, _ := store.Get(r, "playerData")
-	save(session.Values["username"].(string))
-
 	//	TODO: resetQueues and better savePoints
+}
 
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "playerData")
+	username := session.Values["username"].(string)
+	save(username)
+	remove(leaderboard, username)
+
+	action := r.FormValue("action")
+	switch action {
+	case "logout":
+		http.Redirect(w, r, "/logout", http.StatusSeeOther)
+	case "playAgain":
+		http.Redirect(w, r, "/addGameQueue", http.StatusSeeOther)
+	case "profile":
+		http.Redirect(w, r, "/profileDashboard", http.StatusSeeOther)
+	default:
+		http.Error(w, "Invalid action", http.StatusBadRequest)
+	}
 }

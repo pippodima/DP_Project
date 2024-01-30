@@ -42,6 +42,13 @@ func wsGameQueueHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
+
+		leaderboardQueue = make([]string, len(gameQueue))
+		leaderboard = make([]string, len(gameQueue))
+		copy(leaderboardQueue, gameQueue)
+		copy(leaderboard, gameQueue)
+		gameQueue = []string{}
+
 	}
 
 	for {
@@ -67,7 +74,7 @@ func wsLeaderboardQueueHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer conn.Close()
 
-	if len(leaderboardQueue) >= PlayerNumber {
+	if len(leaderboardQueue) == 0 {
 		time.Sleep(1 * time.Second)
 		for _, user := range activeUsers {
 			if user.Conn != nil {
@@ -77,6 +84,7 @@ func wsLeaderboardQueueHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
+
 	}
 
 	for {

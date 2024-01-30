@@ -1,30 +1,73 @@
-<!-- queue.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Queue</title>
+    <title>LeaderboardQueue</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #queue-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 auto;
+            text-align: left;
+            max-width: 400px;
+        }
+
+        #queue-list li {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+
+        }
+
+        #queue-list li:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+
 </head>
 <body>
-<h1>Queue List</h1>
-<ul id="queue-list">
-    {{range .QueueList}}
-    <li>{{.}}</li>
-    {{end}}
-</ul>
-
+<div class="container">
+    <h1>Waiting for players to finish the quiz</h1>
+    <ul id="queue-list">
+        {{range .QueueList}}
+        <li>{{.}}</li>
+        {{end}}
+    </ul>
+</div>
 <script>
     const socket = new WebSocket("ws://" + window.location.host + "/wsLeaderboardQueue");
 
-    socket.onmessage = function(event) {
+    socket.onmessage = function (event) {
         const data = event.data;
         if (data === '/leaderboard') {
-            // Redirect to the specified URL
             window.location.href = data;
         } else {
-            // Update queue list
             const queueList = document.getElementById("queue-list");
             const listItem = document.createElement("li");
             listItem.textContent = data;

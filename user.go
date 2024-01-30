@@ -9,6 +9,7 @@ import (
 var activeUsers []User
 var gameQueue []string
 var leaderboardQueue []string
+var leaderboard []string
 
 type User struct {
 	Username        string

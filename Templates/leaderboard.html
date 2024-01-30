@@ -7,17 +7,16 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
+            background-color: #f9f9f9;
             margin: 0;
+            padding: 20px;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
 
-        p {
-            font-size: 24px;
+        h1 {
             color: #333;
             margin-bottom: 20px;
         }
@@ -26,33 +25,41 @@
             list-style-type: none;
             padding: 0;
             margin: 0;
+            text-align: center;
         }
 
         li {
-            font-size: 16px;
-            color: #333;
             margin-bottom: 10px;
         }
 
-        form {
-            margin-top: 15px;
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
         }
 
-        button {
-            padding: 8px 12px;
-            font-size: 14px;
+        .button-container form {
+            margin-right: 10px;
+        }
+
+        form button {
+            padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
             background-color: #3498db;
             color: #fff;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             transition: background-color 0.3s ease;
         }
 
-        button:hover {
+        form button:hover {
             background-color: #2980b9;
         }
     </style>
+
+
 </head>
 <body>
 <h1>Leaderboard</h1>
@@ -62,11 +69,22 @@
     {{end}}
 </ul>
 
-<form action="/logout">
-    <button type="submit">Logout</button>
-</form>
-<form action="/addGameQueue">
-    <button type="Play Again">Logout</button>
-</form>
+<div class="button-container">
+
+    <form action="/save">
+        <input type="hidden" name="action" value="profile">
+        <button type="submit">Profile</button>
+    </form>
+    <form action="/save">
+        <input type="hidden" name="action" value="playAgain">
+        <button type="submit">Play Again</button>
+    </form>
+
+    <form action="/save">
+        <input type="hidden" name="action" value="logout">
+        <button type="submit">Logout</button>
+    </form>
+
+</div>
 </body>
 </html>
