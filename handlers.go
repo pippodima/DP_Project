@@ -221,7 +221,7 @@ func quizHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error getting the current question", http.StatusInternalServerError)
 	}
 
-	if getCurrentQuestion(username) >= QuestionPerRound {
+	if getCurrentQuestion(username) >= *QuestionPerRound {
 		http.Redirect(w, r, "/addLeaderboardQueue", http.StatusSeeOther)
 		return
 	}

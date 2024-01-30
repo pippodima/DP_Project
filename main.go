@@ -12,8 +12,8 @@ import (
 var db *sql.DB
 var err error
 var PlayerNumber = flag.Int("p", 3, "set the number of Players needed to start the Quiz")
+var QuestionPerRound = flag.Int("q", 5, "set the number of Questions per round")
 var TotalQuestion = 50
-var QuestionPerRound = 3
 var randomIntSlice []int
 
 func main() {

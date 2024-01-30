@@ -36,7 +36,7 @@ func wsGameQueueHandler(w http.ResponseWriter, r *http.Request) {
 	}(conn)
 
 	if len(gameQueue) >= *PlayerNumber {
-		randomIntSlice = getRandomSlice(QuestionPerRound)
+		randomIntSlice = getRandomSlice(*QuestionPerRound)
 		time.Sleep(1 * time.Second)
 		for _, user := range activeUsers {
 			if user.Conn != nil {
