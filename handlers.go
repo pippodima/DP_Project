@@ -332,6 +332,12 @@ func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
 func saveHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "playerData")
 	username := session.Values["username"].(string)
+	session.Values["inGame"] = false
+	err := session.Save(r, w)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	save(username)
 	remove(leaderboard, username)
 

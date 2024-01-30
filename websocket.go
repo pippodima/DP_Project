@@ -37,6 +37,12 @@ func wsGameQueueHandler(w http.ResponseWriter, r *http.Request) {
 
 	if len(gameQueue) >= *PlayerNumber {
 		randomIntSlice = getRandomSlice(*QuestionPerRound)
+		session.Values["inGame"] = true
+		err := session.Save(r, w)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 		time.Sleep(1 * time.Second)
 		for _, user := range activeUsers {
 			if user.Conn != nil {
