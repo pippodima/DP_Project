@@ -257,6 +257,10 @@ func addLeaderboardQueue(w http.ResponseWriter, r *http.Request) {
 
 	for _, user := range activeUsers {
 		if user.Conn != nil {
+			err := user.Conn.WriteMessage(websocket.TextMessage, []byte("/clear"))
+			if err != nil {
+				log.Println("Error writing to WebSocket:", err)
+			}
 			for _, name := range leaderboardQueue {
 				err := user.Conn.WriteMessage(websocket.TextMessage, []byte(name))
 				if err != nil {
@@ -302,8 +306,6 @@ func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error executing leaderboard page", http.StatusInternalServerError)
 		return
 	}
-
-	//	TODO: resetQueues and better savePoints
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {

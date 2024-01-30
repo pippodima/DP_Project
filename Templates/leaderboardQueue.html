@@ -67,7 +67,10 @@
         const data = event.data;
         if (data === '/leaderboard') {
             window.location.href = data;
-        } else {
+        } else if (data === '/clear') {
+            const queueList = document.getElementById("queue-list");
+            queueList.innerHTML = '';
+        }else {
             const queueList = document.getElementById("queue-list");
             const listItem = document.createElement("li");
             listItem.textContent = data;

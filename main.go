@@ -9,7 +9,7 @@ import (
 
 var db *sql.DB
 var err error
-var PlayerNumber = 2
+var PlayerNumber = 3
 var TotalQuestion = 50
 var QuestionPerRound = 3
 var randomIntSlice []int
