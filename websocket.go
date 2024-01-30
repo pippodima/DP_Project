@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gorilla/sessions"
 	"github.com/gorilla/websocket"
 	"log"
@@ -22,16 +21,21 @@ var upgrader = websocket.Upgrader{
 func wsGameQueueHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("errore nell'upgrade in ws handler: ", err)
+		log.Println("errore nell'upgrade in ws handler: ", err)
 	}
 
 	session, _ := store.Get(r, "playerData")
 	username := session.Values["username"].(string)
 	getUserFromUsername(username).Conn = conn
 
-	defer conn.Close()
+	defer func(conn *websocket.Conn) {
+		err := conn.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(conn)
 
-	if len(gameQueue) >= PlayerNumber {
+	if len(gameQueue) >= *PlayerNumber {
 		randomIntSlice = getRandomSlice(QuestionPerRound)
 		time.Sleep(1 * time.Second)
 		for _, user := range activeUsers {
@@ -65,14 +69,19 @@ func wsGameQueueHandler(w http.ResponseWriter, r *http.Request) {
 func wsLeaderboardQueueHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("errore nell'upgrade in ws handler: ", err)
+		log.Println("errore nell'upgrade in ws handler: ", err)
 	}
 
 	session, _ := store.Get(r, "playerData")
 	username := session.Values["username"].(string)
 	getUserFromUsername(username).Conn = conn
 
-	defer conn.Close()
+	defer func(conn *websocket.Conn) {
+		err := conn.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(conn)
 
 	if len(leaderboardQueue) == 0 {
 		time.Sleep(1 * time.Second)

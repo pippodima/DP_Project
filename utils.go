@@ -1,8 +1,11 @@
 package main
 
 import (
-	"fmt"
+	"flag"
+	"io"
+	"log"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -13,13 +16,13 @@ type Question struct {
 }
 
 func getRandomSlice(length int) []int {
-	rand.Seed(time.Now().UnixNano())
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	randomSlice := make([]int, length)
 	usedNumbers := make(map[int]bool)
 
 	for i := 0; i < length; {
-		num := rand.Intn(TotalQuestion) + 1
+		num := r.Intn(TotalQuestion) + 1
 
 		if !usedNumbers[num] {
 			randomSlice[i] = num
@@ -59,12 +62,12 @@ func save(username string) {
 
 	_, err = db.Exec("update users set totalPoints = totalPoints + ? where username = ?", getUserFromUsername(username).GamePoints, username)
 	if err != nil {
-		fmt.Println("error in updating the total points: ", err)
+		log.Println("error in updating the total points: ", err)
 	}
 
 	_, err = db.Exec("update users set gamesPlayed = ? where username = ?", getUserFromUsername(username).GamesPlayed, username)
 	if err != nil {
-		fmt.Println("error in updating the total games played: ", err)
+		log.Println("error in updating the total games played: ", err)
 	}
 
 	getUserFromUsername(username).GamePoints = 0
@@ -79,4 +82,18 @@ func remove(list []string, username string) []string {
 		}
 	}
 	return list
+}
+
+func checkFlags() {
+	help := flag.Bool("help", false, "Show help message")
+	verbose := flag.Bool("verbose", false, "Shows (if there are) log error messages")
+	flag.Parse()
+	if *help {
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
+	if !*verbose {
+		log.SetOutput(io.Discard)
+	}
+
 }

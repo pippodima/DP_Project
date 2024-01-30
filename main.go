@@ -2,24 +2,32 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"log"
 	"net/http"
 )
 
 var db *sql.DB
 var err error
-var PlayerNumber = 3
+var PlayerNumber = flag.Int("p", 3, "set the number of Players needed to start the Quiz")
 var TotalQuestion = 50
 var QuestionPerRound = 3
 var randomIntSlice []int
 
 func main() {
+	checkFlags()
 	db, err = sql.Open("sqlite3", "Data/database.db")
 	if err != nil {
-		fmt.Println("Error opening db: ", err)
+		log.Println("Error opening db: ", err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(db)
 
 	http.HandleFunc("/", welcomeHandler)
 	http.HandleFunc("/login", loginHandler)
@@ -40,7 +48,7 @@ func main() {
 	fmt.Println("server starting at :8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
-		fmt.Println("error listenAndServe: ", err)
+		log.Println("error listenAndServe: ", err)
 		return
 	}
 

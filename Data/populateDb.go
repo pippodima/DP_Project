@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 )
@@ -41,7 +40,7 @@ func main() {
 		)
 	`)
 	if err != nil {
-		fmt.Println("error creating users table: ", err)
+		log.Println("error creating users table: ", err)
 	}
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS questions (
@@ -52,10 +51,15 @@ func main() {
 		)
 	`)
 	if err != nil {
-		fmt.Println("error creating questions table: ", err)
+		log.Println("error creating questions table: ", err)
 	}
 
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(db)
 
 	questionsToAdd := []Question{
 		{

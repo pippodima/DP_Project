@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gorilla/websocket"
+	"log"
 	"sort"
 )
 
@@ -25,12 +25,12 @@ func newActiveUser(username string) {
 	var gamesPlayed int
 	err = db.QueryRow("select totalPoints from users where username = ?", username).Scan(&totPoints)
 	if err != nil {
-		fmt.Println("error querying total points during user creation: ", err)
+		log.Println("error querying total points during user creation: ", err)
 		return
 	}
 	err = db.QueryRow("select gamesPlayed from users where username = ?", username).Scan(&gamesPlayed)
 	if err != nil {
-		fmt.Println("error querying total points during user creation: ", err)
+		log.Println("error querying total points during user creation: ", err)
 		return
 	}
 	activeUsers = append(activeUsers, User{
