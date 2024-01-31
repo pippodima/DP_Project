@@ -70,6 +70,7 @@ func save(username string) {
 		log.Println("error in updating the total games played: ", err)
 	}
 
+	getUserFromUsername(username).TotalPoints += getUserFromUsername(username).GamePoints
 	getUserFromUsername(username).GamePoints = 0
 	getUserFromUsername(username).CurrentQuestion = 0
 
