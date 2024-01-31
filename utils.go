@@ -59,6 +59,7 @@ func addTimePoint(username string, timeStart int) {
 func save(username string) {
 
 	getUserFromUsername(username).GamesPlayed++
+	getUserFromUsername(username).TotalPoints += getUserFromUsername(username).GamePoints
 
 	_, err = db.Exec("update users set totalPoints = totalPoints + ? where username = ?", getUserFromUsername(username).GamePoints, username)
 	if err != nil {
@@ -70,7 +71,6 @@ func save(username string) {
 		log.Println("error in updating the total games played: ", err)
 	}
 
-	getUserFromUsername(username).TotalPoints += getUserFromUsername(username).GamePoints
 	getUserFromUsername(username).GamePoints = 0
 	getUserFromUsername(username).CurrentQuestion = 0
 
