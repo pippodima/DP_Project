@@ -14,8 +14,7 @@ the capabilities of Go and the Gorilla toolkit.
 
 ## Installation (v1)
 To try the Quiz game all you need to do is:
-1. Clone the repository to your local machine using
-   `git clone https://github.com/pippodima/DP_Project`
+1. Dowload the `/Templates`, `/Data` and `QuizWebApp` files (or `QuizWebAppWin.exe` if you are on Windows).
 2. go in the project folder and execute the `QuizWebApp.exe` if you are on windows,
    else you can execute the unix file `QuizWebApp` if you are on macOS
 4. go to your browser and search for `localhost:8080` in the search bar
@@ -24,14 +23,23 @@ To try the Quiz game all you need to do is:
 ## Installation (v2)
 If the previous installation doesn't work it's because sometimes running a file by
 double-clicking it may change the absolute path of the execution.
-1. Clone the repository to your local machine using
-`git clone https://github.com/pippodima/DP_Project`
+1. Dowload the `/Templates`, `/Data` and `QuizWebApp` files (or `QuizWebAppWin.exe` if you are on Windows).
 2. open the terminal and navigate to the folder where you cloned the project using
    `cd path-to-folder`
 3. write `./QuizWebApp` in the terminal and press enter (or`./QuizWebApp.exe` if you are on windows
 4. the Quiz should now start
 5. go to your browser and search for `localhost:8080` in the search bar
 6. Use the app with your friends and multiple people by connecting all to the same ip
+
+## Installation (v3)
+If the previous 2 installation didn't work you will need to build or run the code in the repository.
+You'll need Golang to successfully run the program so first install Golang, then:
+1. Clone the repository to your local machine using
+`git clone https://github.com/pippodima/DP_Project`
+2. open the project with your IDE or go with the terminal to the folder where you dowloaded the repo
+3. build or run the program with `go run .` or `go build .` command in the terminal
+4. go to your browser and search for `localhost:8080` in the search bar
+5. Use the app with your friends and multiple people by connecting all to the same ip
 
 ## Flags
 There are 4 flags you can use by running the App from your terminal:
@@ -41,7 +49,7 @@ There are 4 flags you can use by running the App from your terminal:
 4. `./QuizWebApp -verbose` it will print in the console all errors and information messages
 
 ## Note
-If the database is not working just navigate with the terminal and run the `Data/populateDb.go` file.
-You need to install GoLang before compiling and running the file.
-This file will create the database with two tables, one with 50 questions and one empty for the
-users that will register in the WebApp
+If the database is not working just navigate to the folder of the project then click on
+the folder `/Data`, delete the database.db file and run CreateDB.exe, this script will create a
+new DataBase with no users and the 50 standard question
+
