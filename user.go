@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/gorilla/websocket"
 	"log"
 	"sort"
 )
@@ -10,15 +9,6 @@ var activeUsers []User
 var gameQueue []string
 var leaderboardQueue []string
 var leaderboard []string
-
-type User struct {
-	Username        string
-	GamePoints      int
-	TotalPoints     int
-	GamesPlayed     int
-	CurrentQuestion int
-	Conn            *websocket.Conn
-}
 
 func newActiveUser(username string) {
 	var totPoints int

@@ -2,17 +2,30 @@ package main
 
 import (
 	"flag"
+	"github.com/gorilla/websocket"
+	"html/template"
 	"io"
 	"log"
 	"math/rand"
+	"net/http"
 	"os"
 	"time"
 )
 
 type Question struct {
-	Text       string
-	Options    []string
-	CorrectIdx int
+	ID         int      `json:"id"`
+	Text       string   `json:"text"`
+	Options    []string `json:"options"`
+	CorrectIdx int      `json:"correct_idx"`
+}
+
+type User struct {
+	Username        string
+	GamePoints      int
+	TotalPoints     int
+	GamesPlayed     int
+	CurrentQuestion int
+	Conn            *websocket.Conn
 }
 
 func getRandomSlice(length int) []int {
@@ -97,4 +110,24 @@ func checkFlags() {
 		log.SetOutput(io.Discard)
 	}
 
+}
+
+func renderTemplate(w http.ResponseWriter, fileName string, data any) {
+	t, err := template.ParseFiles("Templates/" + fileName)
+	if err != nil {
+		log.Println("error parsing "+fileName+" :", err)
+		http.Error(w, "error parsing "+fileName+" page", http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, data)
+	if err != nil {
+		log.Println("error executing "+fileName+": ", err)
+		http.Error(w, "error executing "+fileName+" page", http.StatusInternalServerError)
+		return
+	}
+}
+
+func usernameAlreadyExist(username string) (bool, error) {
+	return DBdoesUsernameExist(username)
 }
