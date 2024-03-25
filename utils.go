@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"github.com/gorilla/websocket"
 	"html/template"
 	"io"
 	"log"
@@ -11,22 +10,6 @@ import (
 	"os"
 	"time"
 )
-
-type Question struct {
-	ID         int      `json:"id"`
-	Text       string   `json:"text"`
-	Options    []string `json:"options"`
-	CorrectIdx int      `json:"correct_idx"`
-}
-
-type User struct {
-	Username        string
-	GamePoints      int
-	TotalPoints     int
-	GamesPlayed     int
-	CurrentQuestion int
-	Conn            *websocket.Conn
-}
 
 func getRandomSlice(length int) []int {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))

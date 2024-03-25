@@ -1,21 +1,15 @@
 package main
 
 import (
+	structures "Quiz_WebApp/Structures"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 )
 
-type Question struct {
-	ID         int    `json:"id"`
-	Text       string `json:"text"`
-	Options    string `json:"options"`
-	CorrectIdx int    `json:"correct_idx"`
-}
-
 var db *sql.DB
 
-func addQuestion(question Question) error {
+func addQuestion(question structures.Question) error {
 	_, err := db.Exec(`
 		INSERT INTO questions (text, options, correct_idx)
 		VALUES (?, ?, ?)
@@ -61,7 +55,7 @@ func main() {
 		}
 	}(db)
 
-	questionsToAdd := []Question{
+	questionsToAdd := []structures.Question{
 		{
 			Text:       "What is the capital of France?",
 			Options:    "Berlin,Paris,Madrid,Rome",

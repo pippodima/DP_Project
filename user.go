@@ -1,11 +1,12 @@
 package main
 
 import (
+	structures "Quiz_WebApp/Structures"
 	"log"
 	"sort"
 )
 
-var activeUsers []User
+var activeUsers []structures.User
 var gameQueue []string
 var leaderboardQueue []string
 var leaderboard []string
@@ -23,7 +24,7 @@ func newActiveUser(username string) {
 		log.Println("error querying total points during user creation: ", err)
 		return
 	}
-	activeUsers = append(activeUsers, User{
+	activeUsers = append(activeUsers, structures.User{
 		Username:        username,
 		GamePoints:      0,
 		TotalPoints:     totPoints,
@@ -42,7 +43,7 @@ func removeActiveUser(username string) {
 	}
 }
 
-func getUserFromUsername(username string) *User {
+func getUserFromUsername(username string) *structures.User {
 	for i, user := range activeUsers {
 		if user.Username == username {
 			return &activeUsers[i]
@@ -60,12 +61,12 @@ func getCurrentQuestion(username string) int {
 	return -1
 }
 
-func getUserListFromUsernames(usernames []string) []User {
-	var users []User
+func getUserListFromUsernames(usernames []string) []structures.User {
+	var users []structures.User
 	for _, username := range usernames {
 		for _, user := range activeUsers {
 			if user.Username == username {
-				var tempUser = User{
+				var tempUser = structures.User{
 					Username:        user.Username,
 					GamePoints:      user.GamePoints,
 					TotalPoints:     user.TotalPoints,
@@ -80,7 +81,7 @@ func getUserListFromUsernames(usernames []string) []User {
 	return users
 }
 
-func sortUsers(users []User) []User {
+func sortUsers(users []structures.User) []structures.User {
 	sort.Slice(users, func(i, j int) bool {
 		return users[i].GamePoints > users[j].GamePoints
 	})
